@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-export default function GroupsTab({ uid, user, leaderboard, groups, loading, createGroup, joinGroup, adjustPoints, promoteAdmin, demoteAdmin, removeMember, leaveGroup, getGroupMembers }) {
+export default function GroupsTab({ uid, user, leaderboard, groups, loading, createGroup, joinGroup, adjustPoints, promoteAdmin, demoteAdmin, removeMember, leaveGroup, getGroupMembers, getAllUsers, addMemberByUid }) {
   const [view, setView] = useState('list')
   const [selectedGroup, setSelectedGroup] = useState(null)
   const [members, setMembers] = useState([])
@@ -13,6 +13,10 @@ export default function GroupsTab({ uid, user, leaderboard, groups, loading, cre
   const [copiedId, setCopiedId] = useState(null)
   const [adjustValues, setAdjustValues] = useState({})
   const [memberCounts, setMemberCounts] = useState({})
+  const [showAddMembers, setShowAddMembers] = useState(false)
+  const [allUsers, setAllUsers] = useState([])
+  const [addingUid, setAddingUid] = useState(null)
+  const [userSearch, setUserSearch] = useState('')
 
   // Subscribe to member counts for list view
   useEffect(() => {
@@ -111,6 +115,23 @@ export default function GroupsTab({ uid, user, leaderboard, groups, loading, cre
           }}>{copiedId === codeKey ? 'Copied!' : 'Copy'}</button>
         </div>
 
+        {/* Add members button (admins only) */}
+        {isAdmin() && (
+          <button onClick={async () => {
+            const users = await getAllUsers()
+            setAllUsers(users)
+            setUserSearch('')
+            setShowAddMembers(true)
+          }} style={{
+            width: '100%', background: 'var(--bg2)', border: '1px solid var(--border)',
+            borderRadius: 12, padding: '12px', color: 'var(--text1)', fontSize: 14,
+            fontWeight: 700, cursor: 'pointer', marginBottom: 16, display: 'flex',
+            alignItems: 'center', justifyContent: 'center', gap: 8,
+          }}>
+            <span style={{ fontSize: 18 }}>＋</span> Add Members
+          </button>
+        )}
+
         {/* Members leaderboard */}
         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text4)', letterSpacing: '0.1em', marginBottom: 10 }}>MEMBERS · {members.length}</div>
         {sortedMembers.map((member, i) => {
@@ -192,6 +213,73 @@ export default function GroupsTab({ uid, user, leaderboard, groups, loading, cre
             </div>
           )
         })}
+
+        {/* Add Members Modal */}
+        {showAddMembers && (
+          <div onClick={() => setShowAddMembers(false)} style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 1000,
+            display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+          }}>
+            <div onClick={e => e.stopPropagation()} style={{
+              background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '20px 20px 0 0',
+              padding: '24px 16px', width: '100%', maxWidth: 480, maxHeight: '75vh', display: 'flex', flexDirection: 'column',
+            }}>
+              <div style={{ fontWeight: 900, fontSize: 18, color: 'var(--text1)', marginBottom: 4 }}>Add Members</div>
+              <div style={{ fontSize: 12, color: 'var(--text4)', marginBottom: 14 }}>All signed-up users — tap to add to this group</div>
+              <input
+                autoFocus
+                value={userSearch}
+                onChange={e => setUserSearch(e.target.value)}
+                placeholder="Search by name..."
+                style={{
+                  background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10,
+                  padding: '10px 14px', color: 'var(--text1)', fontSize: 14,
+                  marginBottom: 12, outline: 'none', width: '100%', boxSizing: 'border-box',
+                }}
+              />
+              <div style={{ overflowY: 'auto', flex: 1 }}>
+                {allUsers
+                  .filter(u => !members.find(m => m.uid === u.uid))
+                  .filter(u => !userSearch || (u.displayName || '').toLowerCase().includes(userSearch.toLowerCase()) || (u.email || '').toLowerCase().includes(userSearch.toLowerCase()))
+                  .map(u => (
+                    <div key={u.uid} style={{
+                      display: 'flex', alignItems: 'center', gap: 12, padding: '10px 4px',
+                      borderBottom: '1px solid var(--border)',
+                    }}>
+                      <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'var(--bg3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700, color: 'var(--text2)', flexShrink: 0 }}>
+                        {(u.displayName || '?')[0].toUpperCase()}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.displayName || 'Unknown'}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email}</div>
+                      </div>
+                      <button
+                        disabled={addingUid === u.uid}
+                        onClick={async () => {
+                          setAddingUid(u.uid)
+                          try { await addMemberByUid(selectedGroup.id, u.uid) } catch {}
+                          setAddingUid(null)
+                        }}
+                        style={{
+                          background: 'linear-gradient(135deg,#22c55e,#16a34a)', border: 'none',
+                          borderRadius: 8, padding: '6px 14px', color: '#0b1120',
+                          fontSize: 13, fontWeight: 800, cursor: 'pointer',
+                          opacity: addingUid === u.uid ? 0.5 : 1, flexShrink: 0,
+                        }}
+                      >{addingUid === u.uid ? '...' : 'Add'}</button>
+                    </div>
+                  ))}
+                {allUsers.filter(u => !members.find(m => m.uid === u.uid)).length === 0 && (
+                  <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text4)', fontSize: 13 }}>Everyone is already in this group</div>
+                )}
+              </div>
+              <button onClick={() => setShowAddMembers(false)} style={{
+                marginTop: 16, width: '100%', background: 'var(--bg2)', border: '1px solid var(--border)',
+                borderRadius: 12, padding: '13px', color: 'var(--text2)', fontSize: 14, fontWeight: 700, cursor: 'pointer',
+              }}>Done</button>
+            </div>
+          </div>
+        )}
 
         {/* Leave group */}
         <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--border)' }}>

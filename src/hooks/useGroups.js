@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import {
   collection, doc, onSnapshot, setDoc, addDoc, updateDoc, deleteDoc,
-  arrayUnion, arrayRemove, query, where, serverTimestamp, getDocs
+  arrayUnion, arrayRemove, query, where, serverTimestamp, getDocs, getDoc
 } from 'firebase/firestore'
 import { db } from '../firebase'
 
@@ -99,5 +99,25 @@ export function useGroups(uid, displayName, photoURL) {
     return removeMember(groupId, uid)
   }
 
-  return { groups, loading, createGroup, joinGroup, getGroupMembers, adjustPoints, promoteAdmin, demoteAdmin, removeMember, leaveGroup }
+  async function getAllUsers() {
+    const snap = await getDocs(collection(db, 'users'))
+    return snap.docs.map(d => ({ uid: d.id, ...d.data() }))
+  }
+
+  async function addMemberByUid(groupId, targetUid) {
+    const userSnap = await getDoc(doc(db, 'users', targetUid))
+    if (!userSnap.exists()) throw new Error('User not found')
+    const userData = userSnap.data()
+    await updateDoc(doc(db, 'groups', groupId), { memberUids: arrayUnion(targetUid) })
+    await setDoc(doc(db, 'groups', groupId, 'members', targetUid), {
+      uid: targetUid,
+      displayName: userData.displayName || '',
+      photoURL: userData.photoURL || '',
+      role: 'member',
+      pointsAdjustment: 0,
+      joinedAt: serverTimestamp(),
+    })
+  }
+
+  return { groups, loading, createGroup, joinGroup, getGroupMembers, adjustPoints, promoteAdmin, demoteAdmin, removeMember, leaveGroup, getAllUsers, addMemberByUid }
 }

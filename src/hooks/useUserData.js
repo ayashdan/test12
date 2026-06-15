@@ -18,13 +18,16 @@ export function useUserData(uid, user) {
   const [userRank, setUserRank] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  // Upsert leaderboard entry when user signs in
+  // Upsert leaderboard entry and global users registry when user signs in
   useEffect(() => {
     if (!uid || !user) return
-    setDoc(doc(db, 'leaderboard', uid), {
+    const profile = {
       displayName: user.displayName || 'Anonymous',
       photoURL: user.photoURL || '',
-    }, { merge: true })
+      email: user.email || '',
+    }
+    setDoc(doc(db, 'leaderboard', uid), profile, { merge: true })
+    setDoc(doc(db, 'users', uid), { ...profile, uid, lastSeen: serverTimestamp() }, { merge: true })
   }, [uid, user])
 
   useEffect(() => {
