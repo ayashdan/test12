@@ -7,10 +7,34 @@ export default function LoginPage() {
   return (
     <div style={{ ...S.app, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
       <div style={{ textAlign: 'center', padding: 32 }}>
-        <div style={S.logo}>BLITZ</div>
+        {/* Football logo */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, marginBottom: 8 }}>
+          <div style={{ position: 'relative', width: 90, height: 80, margin: '0 auto' }}>
+            <span style={{ position: 'absolute', top: 0, left: 2, fontSize: 14, fontWeight: 900, color: '#22c55e', fontFamily: 'DM Mono,monospace' }}>21</span>
+            <span style={{ position: 'absolute', top: 0, right: 2, fontSize: 14, fontWeight: 900, color: '#facc15', fontFamily: 'DM Mono,monospace' }}>17</span>
+            <svg width="90" height="60" viewBox="0 0 90 60" fill="none" style={{ position: 'absolute', bottom: 0, left: 0 }}>
+              <ellipse cx="45" cy="30" rx="42" ry="26" fill="url(#loginBallGrad)" />
+              <line x1="45" y1="10" x2="45" y2="50" stroke="white" strokeWidth="2" strokeLinecap="round" />
+              <line x1="45" y1="16" x2="53" y2="16" stroke="white" strokeWidth="2" strokeLinecap="round" />
+              <line x1="45" y1="23" x2="53" y2="23" stroke="white" strokeWidth="2" strokeLinecap="round" />
+              <line x1="45" y1="30" x2="53" y2="30" stroke="white" strokeWidth="2" strokeLinecap="round" />
+              <line x1="45" y1="37" x2="53" y2="37" stroke="white" strokeWidth="2" strokeLinecap="round" />
+              <line x1="45" y1="44" x2="53" y2="44" stroke="white" strokeWidth="2" strokeLinecap="round" />
+              <path d="M10 20 Q45 12 80 20" stroke="white" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.5" />
+              <path d="M10 40 Q45 48 80 40" stroke="white" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.5" />
+              <defs>
+                <linearGradient id="loginBallGrad" x1="0" y1="0" x2="90" y2="60" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#f97316" />
+                  <stop offset="100%" stopColor="#92400e" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div style={{ ...S.logo, marginTop: 4 }}>BLITZ</div>
+        </div>
         <div style={S.logoSub}>PICK. TRACK. WIN.</div>
 
-        <div style={{ marginTop: 40, marginBottom: 12, fontSize: 32 }}>🏈</div>
+        <div style={{ marginTop: 24, marginBottom: 12 }} />
         <div style={{ color: 'var(--text2)', fontSize: 14, lineHeight: 1.7, marginBottom: 36 }}>
           Predict every game. Own every week.<br />Sign in to track your picks across devices.
         </div>

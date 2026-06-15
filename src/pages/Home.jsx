@@ -560,7 +560,40 @@ export default function HomePage({ mode, picks, completedWeeks, totalPoints, cor
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 16px 12px', position: 'sticky', top: 0, zIndex: 10, background: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ fontWeight: 900, fontSize: 22, background: 'linear-gradient(135deg,#22c55e,#facc15)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', fontFamily: 'DM Mono' }}>BLITZ</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {/* Football SVG logo with floating numbers */}
+          <div style={{ position: 'relative', width: 44, height: 44 }}>
+            {/* Floating score numbers */}
+            <span style={{ position: 'absolute', top: -8, left: -4, fontSize: 9, fontWeight: 900, color: '#22c55e', fontFamily: 'DM Mono,monospace', animation: 'none', opacity: 0.9 }}>21</span>
+            <span style={{ position: 'absolute', top: -8, right: -4, fontSize: 9, fontWeight: 900, color: '#facc15', fontFamily: 'DM Mono,monospace', opacity: 0.9 }}>17</span>
+            <svg width="44" height="34" viewBox="0 0 44 34" fill="none" style={{ position: 'absolute', top: 6, left: 0 }}>
+              {/* Ball body */}
+              <ellipse cx="22" cy="17" rx="20" ry="13" fill="#c2410c" />
+              <ellipse cx="22" cy="17" rx="20" ry="13" fill="url(#footballGrad)" />
+              {/* Lace vertical line */}
+              <line x1="22" y1="8" x2="22" y2="26" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+              {/* Lace stitches */}
+              <line x1="22" y1="11" x2="26" y2="11" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+              <line x1="22" y1="14" x2="26" y2="14" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+              <line x1="22" y1="17" x2="26" y2="17" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+              <line x1="22" y1="20" x2="26" y2="20" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+              <line x1="22" y1="23" x2="26" y2="23" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+              {/* White stripe lines */}
+              <path d="M7 12 Q22 8 37 12" stroke="white" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.6" />
+              <path d="M7 22 Q22 26 37 22" stroke="white" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.6" />
+              <defs>
+                <linearGradient id="footballGrad" x1="0" y1="0" x2="44" y2="34" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#ea580c" />
+                  <stop offset="100%" stopColor="#92400e" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div>
+            <div style={{ fontWeight: 900, fontSize: 22, background: 'linear-gradient(135deg,#22c55e,#facc15)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', fontFamily: 'DM Mono', lineHeight: 1 }}>BLITZ</div>
+            <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: '0.15em', color: 'var(--text4)', fontFamily: 'DM Mono' }}>NFL PICKS</div>
+          </div>
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {streak > 0 && (
             <div style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: 8, padding: '4px 10px' }}>
