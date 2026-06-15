@@ -7,13 +7,31 @@ const AuthContext = createContext(null)
 const isMobile = () => /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
 export function AuthProvider({ children }) {
+  // undefined = still loading, null = signed out, object = signed in
   const [user, setUser] = useState(undefined)
+  const [redirectPending, setRedirectPending] = useState(true)
 
   useEffect(() => {
-    // Handle redirect result on mobile after returning from Google
-    getRedirectResult(auth).catch(() => {})
-    return onAuthStateChanged(auth, setUser)
+    // Process redirect result first, then listen for auth state
+    getRedirectResult(auth)
+      .then(result => {
+        if (result?.user) setUser(result.user)
+      })
+      .catch(() => {})
+      .finally(() => setRedirectPending(false))
+
+    return onAuthStateChanged(auth, u => {
+      if (!redirectPending) setUser(u)
+    })
   }, [])
+
+  // Show nothing while processing redirect (avoids flash back to login)
+  useEffect(() => {
+    if (!redirectPending) {
+      const unsub = onAuthStateChanged(auth, setUser)
+      return unsub
+    }
+  }, [redirectPending])
 
   const login = () => isMobile()
     ? signInWithRedirect(auth, provider)
@@ -22,7 +40,7 @@ export function AuthProvider({ children }) {
   const logout = () => signOut(auth)
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user: redirectPending ? undefined : user, login, logout }}>
       {children}
     </AuthContext.Provider>
   )
