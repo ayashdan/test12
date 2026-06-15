@@ -7,11 +7,11 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/icon-192.png', 'icons/icon-512.png'],
+      includeAssets: ['icons/icon-192-v2.png', 'icons/icon-512-v2.png'],
       manifest: {
-        name: 'FORGE — Build. Track. Repeat.',
-        short_name: 'FORGE',
-        description: 'Your personal gym workout tracker',
+        name: 'BLITZ — NFL Picks',
+        short_name: 'BLITZ',
+        description: 'Predict every NFL game. Track your picks. Win.',
         theme_color: '#020817',
         background_color: '#020817',
         display: 'standalone',
@@ -19,9 +19,9 @@ export default defineConfig({
         start_url: '/',
         scope: '/',
         icons: [
-          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: '/icons/icon-192-v2.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icons/icon-512-v2.png', sizes: '512x512', type: 'image/png' },
+          { src: '/icons/icon-512-v2.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {
@@ -35,11 +35,6 @@ export default defineConfig({
             urlPattern: /^https:\/\/fonts\.gstatic\.com/,
             handler: 'CacheFirst',
             options: { cacheName: 'google-fonts-webfonts', expiration: { maxAgeSeconds: 31536000 } },
-          },
-          {
-            urlPattern: /^https:\/\/img\.youtube\.com\/vi/,
-            handler: 'CacheFirst',
-            options: { cacheName: 'youtube-thumbs', expiration: { maxEntries: 60, maxAgeSeconds: 2592000 } },
           },
         ],
       },

@@ -48,18 +48,17 @@ export default function BuilderPage({ mode, picks, savePicks }) {
             onClick={handleSave}>Save ({selected.length})</button>
         </div>
 
-        <div style={{ fontWeight: 900, fontSize: 22, marginBottom: 4 }}>Week {week} Games</div>
-        <div style={{ color: '#94a3b8', fontSize: 13, marginBottom: 16 }}>Select the matchups you want to predict</div>
+        <div style={{ fontWeight: 900, fontSize: 22, marginBottom: 4, color: 'var(--text1)' }}>Week {week} Games</div>
+        <div style={{ color: 'var(--text2)', fontSize: 13, marginBottom: 16 }}>Select the matchups you want to predict</div>
 
-        {/* Filter chips */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
           {divisions.map(d => {
             const isActive = divFilter === d
             return (
               <button key={d} onClick={() => setDivFilter(d)} style={{
                 background: isActive ? 'rgba(34,197,94,0.18)' : 'transparent',
-                color: isActive ? '#22c55e' : '#94a3b8',
-                border: `1px solid ${isActive ? '#22c55e' : '#1e293b'}`,
+                color: isActive ? '#22c55e' : 'var(--text2)',
+                border: `1px solid ${isActive ? '#22c55e' : 'var(--border)'}`,
                 borderRadius: 20, padding: '4px 12px',
                 fontSize: 12, fontWeight: 600, cursor: 'pointer',
               }}>{d}</button>
@@ -67,7 +66,7 @@ export default function BuilderPage({ mode, picks, savePicks }) {
           })}
         </div>
 
-        <div style={{ fontSize: 12, color: '#475569', marginBottom: 12 }}>{displayed.length} games available</div>
+        <div style={{ fontSize: 12, color: 'var(--text4)', marginBottom: 12 }}>{displayed.length} games available</div>
 
         {displayed.map(game => (
           <GameCard key={game.id} game={game}

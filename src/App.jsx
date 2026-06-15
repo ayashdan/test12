@@ -14,11 +14,11 @@ export default function App() {
 
   if (!user) return <LoginPage />
 
-  return <AuthedApp uid={user.uid} />
+  return <AuthedApp uid={user.uid} user={user} />
 }
 
-function AuthedApp({ uid }) {
-  const data = useUserData(uid)
+function AuthedApp({ uid, user }) {
+  const data = useUserData(uid, user)
 
   if (data.loading) return (
     <div style={{ minHeight: '100vh', background: '#020817', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -28,7 +28,7 @@ function AuthedApp({ uid }) {
 
   return (
     <Routes>
-      <Route path="/" element={<HomePage {...data} />} />
+      <Route path="/" element={<HomePage {...data} user={user} />} />
       <Route path="/plan" element={<ModePage {...data} />} />
       <Route path="/builder/:dayIndex" element={<BuilderPage {...data} />} />
       <Route path="/workout/:dayIndex" element={<PicksPage {...data} />} />
