@@ -15,6 +15,16 @@ function randomCode() {
 export function useGroups(uid, displayName, photoURL) {
   const [groups, setGroups] = useState([])
   const [loading, setLoading] = useState(true)
+  const [isGlobalAdmin, setIsGlobalAdmin] = useState(false)
+
+  useEffect(() => {
+    if (!uid) return
+    const unsub = onSnapshot(doc(db, 'appConfig', 'admins'), snap => {
+      const uids = snap.data()?.uids || []
+      setIsGlobalAdmin(uids.includes(uid))
+    })
+    return unsub
+  }, [uid])
 
   useEffect(() => {
     if (!uid) { setLoading(false); return }
@@ -120,5 +130,5 @@ export function useGroups(uid, displayName, photoURL) {
     })
   }
 
-  return { groups, loading, createGroup, joinGroup, getGroupMembers, adjustPoints, promoteAdmin, demoteAdmin, removeMember, leaveGroup, getAllUsers, addMemberByUid }
+  return { groups, loading, isGlobalAdmin, createGroup, joinGroup, getGroupMembers, adjustPoints, promoteAdmin, demoteAdmin, removeMember, leaveGroup, getAllUsers, addMemberByUid }
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-export default function GroupsTab({ uid, user, leaderboard, groups, loading, createGroup, joinGroup, adjustPoints, promoteAdmin, demoteAdmin, removeMember, leaveGroup, getGroupMembers, getAllUsers, addMemberByUid }) {
+export default function GroupsTab({ uid, user, leaderboard, groups, loading, isGlobalAdmin, createGroup, joinGroup, adjustPoints, promoteAdmin, demoteAdmin, removeMember, leaveGroup, getGroupMembers, getAllUsers, addMemberByUid }) {
   const [view, setView] = useState('list')
   const [selectedGroup, setSelectedGroup] = useState(null)
   const [members, setMembers] = useState([])
@@ -319,10 +319,12 @@ export default function GroupsTab({ uid, user, leaderboard, groups, loading, cre
             background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10,
             padding: '7px 14px', color: 'var(--text2)', fontSize: 13, fontWeight: 700, cursor: 'pointer',
           }}>Join</button>
-          <button onClick={() => setShowCreate(true)} style={{
-            background: 'linear-gradient(135deg,#22c55e,#16a34a)', border: 'none', borderRadius: 10,
-            padding: '7px 14px', color: '#0b1120', fontSize: 13, fontWeight: 800, cursor: 'pointer',
-          }}>+ Create</button>
+          {isGlobalAdmin && (
+            <button onClick={() => setShowCreate(true)} style={{
+              background: 'linear-gradient(135deg,#22c55e,#16a34a)', border: 'none', borderRadius: 10,
+              padding: '7px 14px', color: '#0b1120', fontSize: 13, fontWeight: 800, cursor: 'pointer',
+            }}>+ Create</button>
+          )}
         </div>
       </div>
 

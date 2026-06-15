@@ -497,7 +497,7 @@ export default function HomePage({ mode, picks, completedWeeks, totalPoints, cor
   const { logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const [activeTab, setActiveTab] = useState('picks')
-  const { groups, loading: groupsLoading, createGroup, joinGroup, getGroupMembers, adjustPoints, promoteAdmin, demoteAdmin, removeMember, leaveGroup, getAllUsers, addMemberByUid } = useGroups(user?.uid, user?.displayName, user?.photoURL)
+  const { groups, loading: groupsLoading, isGlobalAdmin, createGroup, joinGroup, getGroupMembers, adjustPoints, promoteAdmin, demoteAdmin, removeMember, leaveGroup, getAllUsers, addMemberByUid } = useGroups(user?.uid, user?.displayName, user?.photoURL)
   
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text1)', fontFamily: "'DM Sans','Segoe UI',sans-serif", paddingBottom: 80 }}>
@@ -559,7 +559,7 @@ export default function HomePage({ mode, picks, completedWeeks, totalPoints, cor
       <div style={{ padding: '12px 16px 0' }}>
         {activeTab === 'picks' && <PicksTab mode={mode} picks={picks} completedWeeks={completedWeeks} savePicks={savePicks} navigate={navigate} />}
         {activeTab === 'games' && <GamesTab picks={picks} />}
-        {activeTab === 'groups' && <GroupsTab uid={user?.uid} user={user} leaderboard={leaderboard} groups={groups} loading={groupsLoading} createGroup={createGroup} joinGroup={joinGroup} adjustPoints={adjustPoints} promoteAdmin={promoteAdmin} demoteAdmin={demoteAdmin} removeMember={removeMember} leaveGroup={leaveGroup} getGroupMembers={getGroupMembers} getAllUsers={getAllUsers} addMemberByUid={addMemberByUid} />}
+        {activeTab === 'groups' && <GroupsTab uid={user?.uid} user={user} leaderboard={leaderboard} groups={groups} loading={groupsLoading} isGlobalAdmin={isGlobalAdmin} createGroup={createGroup} joinGroup={joinGroup} adjustPoints={adjustPoints} promoteAdmin={promoteAdmin} demoteAdmin={demoteAdmin} removeMember={removeMember} leaveGroup={leaveGroup} getGroupMembers={getGroupMembers} getAllUsers={getAllUsers} addMemberByUid={addMemberByUid} />}
         {activeTab === 'record' && <RecordTab picks={picks} totalPoints={totalPoints} correctPicks={correctPicks} totalPicks={totalPicks} streak={streak} applyResults={applyResults} />}
         {activeTab === 'settings' && <SettingsTab mode={mode} saveMode={saveMode} logout={logout} />}
       </div>
