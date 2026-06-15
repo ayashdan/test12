@@ -61,14 +61,13 @@ export function useUserData(uid, user) {
         setTotalPicks(d.totalPicks ?? 0)
       }),
       onSnapshot(
-        query(collection(db, 'leaderboard'), orderBy('totalPoints', 'desc'), limit(25)),
+        collection(db, 'leaderboard'),
         snap => {
-          const list = []
+          const list = snap.docs
+            .map(d => ({ uid: d.id, totalPoints: 0, ...d.data() }))
+            .sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0))
           let rank = null
-          snap.forEach((d, i) => {
-            if (d.id === uid) rank = list.length + 1
-            list.push({ uid: d.id, ...d.data() })
-          })
+          list.forEach((u, i) => { if (u.uid === uid) rank = i + 1 })
           setLeaderboard(list)
           setUserRank(rank)
         }
