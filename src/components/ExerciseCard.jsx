@@ -1,118 +1,56 @@
-import { MUSCLE_COLORS, DIFF_COLOR } from '../data/exercises'
-import MuscleSilhouette from './MuscleSilhouette'
+import { TEAMS } from '../data/teams'
 
-function StatCircle({ value, label, active = false, color = '#334155' }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-      <div style={{
-        width: 62, height: 62, borderRadius: '50%',
-        border: `2.5px solid ${active ? color : '#1e293b'}`,
-        background: active ? `${color}18` : '#0a1628',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        transition: 'all 0.2s ease',
-      }}>
-        <span style={{
-          fontFamily: "'DM Mono', monospace",
-          fontWeight: 700, fontSize: 14,
-          color: active ? color : '#475569',
-          textAlign: 'center', lineHeight: 1.2,
-        }}>{value}</span>
-      </div>
-      <span style={{
-        fontSize: 10, color: '#475569', fontWeight: 600,
-        letterSpacing: '0.05em', textTransform: 'uppercase',
-      }}>{label}</span>
-    </div>
-  )
-}
+const TYPE_LABEL = { primetime: 'PRIMETIME', divisional: 'RIVALRY', regular: 'REGULAR' }
+const TYPE_COLOR = { primetime: '#facc15', divisional: '#f97316', regular: '#60a5fa' }
 
-export default function ExerciseCard({ ex, selected, done, onToggle }) {
-  const color = MUSCLE_COLORS[ex.muscle] || '#f97316'
-  const diffColor = DIFF_COLOR[ex.diff]
-  const [setsNum, repsStr] = ex.sets.split('×')
+export default function GameCard({ game, selected, done, onToggle }) {
+  const away = TEAMS[game.away] || {}
+  const home = TEAMS[game.home] || {}
+  const typeColor = TYPE_COLOR[game.type] || '#60a5fa'
+  const typeLabel = TYPE_LABEL[game.type] || ''
 
   return (
     <div onClick={onToggle} style={{
-      background: done ? 'rgba(34,197,94,0.05)' : selected ? 'rgba(249,115,22,0.06)' : '#0f172a',
-      border: `1px solid ${done ? 'rgba(34,197,94,0.4)' : selected ? 'rgba(249,115,22,0.55)' : '#1e293b'}`,
-      borderRadius: 16,
-      overflow: 'hidden',
-      cursor: onToggle ? 'pointer' : 'default',
-      transition: 'all 0.15s ease',
-      opacity: done ? 0.8 : 1,
-      marginBottom: 12,
+      background: selected ? 'rgba(34,197,94,0.06)' : '#0f172a',
+      border: `1px solid ${selected ? 'rgba(34,197,94,0.4)' : '#1e293b'}`,
+      borderRadius: 12, padding: 14, marginBottom: 8, cursor: 'pointer',
     }}>
-
-      {/* ── Top bar: muscle tag + diff + video link ── */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '10px 14px 0',
-      }}>
-        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-          <span style={{
-            fontSize: 10, fontWeight: 700,
-            background: `${color}25`, color, border: `1px solid ${color}50`,
-            borderRadius: 4, padding: '2px 8px', letterSpacing: '0.05em',
-          }}>{ex.muscle.toUpperCase()}</span>
-          <span style={{ fontSize: 10, fontWeight: 600, color: diffColor }}>{ex.diff}</span>
-        </div>
-        <a href={ex.url} target="_blank" rel="noopener noreferrer"
-          onClick={e => e.stopPropagation()}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 5,
-            background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: 6, padding: '4px 10px', textDecoration: 'none',
-          }}>
-          <span style={{ color, fontSize: 9 }}>▶</span>
-          <span style={{ color: '#94a3b8', fontSize: 10, fontWeight: 600 }}>Video</span>
-        </a>
-      </div>
-
-      {/* ── Main area: figure + info ── */}
-      <div style={{ display: 'flex', alignItems: 'stretch' }}>
-
-        {/* Muscle figure — large, dark bg panel */}
-        <div style={{
-          background: 'rgba(10,22,40,0.8)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: '12px 10px',
-          borderRight: '1px solid rgba(255,255,255,0.05)',
-          minWidth: 110,
-        }}>
-          <MuscleSilhouette muscles={[ex.muscle]} size={90} />
-        </div>
-
-        {/* Right panel: name + circles */}
-        <div style={{ flex: 1, padding: '14px 14px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-
-          {/* Name + checkbox */}
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 16 }}>
-            <div style={{
-              fontWeight: 800, fontSize: 15, color: '#f8fafc', lineHeight: 1.3, flex: 1,
-              textDecoration: done ? 'line-through' : 'none',
-            }}>{ex.name}</div>
-            {onToggle && (
-              <div style={{
-                width: 28, height: 28, borderRadius: 7, flexShrink: 0,
-                border: `2px solid ${done ? 'transparent' : selected ? '#f97316' : '#334155'}`,
-                background: done ? '#22c55e' : selected ? 'rgba(249,115,22,0.2)' : 'transparent',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 13, color: done ? '#fff' : selected ? '#f97316' : '#475569',
-                transition: 'all 0.15s ease',
-              }}>{done ? '✓' : selected ? '✓' : '+'}</div>
-            )}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {/* Teams */}
+        <div style={{ flex: 1 }}>
+          {/* Away */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+            <div style={{ width: 30, height: 30, borderRadius: 7, background: away.color || '#1e293b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <span style={{ fontSize: 9, fontWeight: 900, color: 'white', fontFamily: 'DM Mono, monospace' }}>{game.away}</span>
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9', lineHeight: 1.2 }}>{away.city} {away.name}</div>
+              <div style={{ fontSize: 10, color: '#475569' }}>Away</div>
+            </div>
           </div>
+          {/* Home */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 30, height: 30, borderRadius: 7, background: home.color || '#1e293b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <span style={{ fontSize: 9, fontWeight: 900, color: 'white', fontFamily: 'DM Mono, monospace' }}>{game.home}</span>
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9', lineHeight: 1.2 }}>{home.city} {home.name}</div>
+              <div style={{ fontSize: 10, color: '#475569' }}>{game.time} · {game.net}</div>
+            </div>
+          </div>
+        </div>
 
-          {/* Stat circles */}
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'space-around' }}>
-            <StatCircle value={repsStr || ex.sets} label="Reps" active color={color} />
-            <StatCircle value={setsNum} label="Sets" active={false} />
-            <StatCircle
-              value={done ? '✓' : selected ? '✓' : '—'}
-              label={done ? 'Done' : 'Status'}
-              active={done || selected}
-              color={done ? '#22c55e' : '#f97316'}
-            />
+        {/* Right side */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.05em', background: `${typeColor}22`, color: typeColor, border: `1px solid ${typeColor}44`, borderRadius: 4, padding: '2px 6px' }}>{typeLabel}</span>
+          <div style={{
+            width: 26, height: 26, borderRadius: '50%',
+            background: selected ? '#22c55e' : 'transparent',
+            border: `2px solid ${selected ? '#22c55e' : '#334155'}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#0b1120', fontSize: 13,
+          }}>
+            {selected && '✓'}
           </div>
         </div>
       </div>

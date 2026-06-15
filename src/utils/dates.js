@@ -1,41 +1,27 @@
-import { PLANS } from '../data/plans'
-import { EXERCISES } from '../data/exercises'
+// NFL 2026 season starts Sept 10, 2026
+const SEASON_START = new Date('2026-09-10')
+const TOTAL_WEEKS = 18
 
-export function getMonday(d) {
-  const date = new Date(d)
-  const diff = (date.getDay() + 6) % 7
-  date.setDate(date.getDate() - diff)
-  date.setHours(0, 0, 0, 0)
-  return date
+export function getCurrentNFLWeek() {
+  const today = new Date()
+  const diff = Math.floor((today - SEASON_START) / (7 * 24 * 60 * 60 * 1000))
+  if (diff < 0) return 1
+  if (diff >= TOTAL_WEEKS) return TOTAL_WEEKS
+  return diff + 1
 }
 
-export function getWeekKey() {
-  return getMonday(new Date()).toISOString().slice(0, 10)
+export function getWeekKey(week) {
+  return `2026-week-${week ?? getCurrentNFLWeek()}`
 }
 
-export function todayIndex() {
-  return (new Date().getDay() + 6) % 7
+export function picksKey(week) {
+  return getWeekKey(week)
 }
 
-export function dateFromDayIndex(dayIndex) {
-  const monday = getMonday(new Date())
-  const d = new Date(monday)
-  d.setDate(d.getDate() + dayIndex)
-  return d.toISOString().slice(0, 10)
+export function weekLabel(week) {
+  return `Week ${week}`
 }
 
-export function workoutKey(dayIndex) {
-  return `${getWeekKey()}-${dayIndex}`
-}
-
-export function getPlanDay(plan, dayIndex) {
-  if (!plan) return null
-  const days = PLANS[plan].days
-  if (dayIndex >= days.length) return null
-  return days[dayIndex % days.length]
-}
-
-export function getExercisesForDay(planDay) {
-  if (!planDay) return []
-  return EXERCISES.filter(e => planDay.muscles.includes(e.muscle))
+export function allWeeks() {
+  return Array.from({ length: TOTAL_WEEKS }, (_, i) => i + 1)
 }

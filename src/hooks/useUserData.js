@@ -1,14 +1,12 @@
 import { useEffect, useState, useCallback } from 'react'
-import {
-  doc, collection, onSnapshot, setDoc, serverTimestamp,
-} from 'firebase/firestore'
+import { doc, collection, onSnapshot, setDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
-import { getWeekKey, dateFromDayIndex } from '../utils/dates'
+import { getWeekKey } from '../utils/dates'
 
 export function useUserData(uid) {
-  const [plan, setPlan] = useState(null)
-  const [workouts, setWorkouts] = useState({})
-  const [completedDays, setCompletedDays] = useState({})
+  const [mode, setMode] = useState(null)
+  const [picks, setPicks] = useState({})
+  const [completedWeeks, setCompletedWeeks] = useState({})
   const [streak, setStreak] = useState(0)
   const [loading, setLoading] = useState(true)
 
@@ -20,19 +18,19 @@ export function useUserData(uid) {
 
     const unsubs = [
       onSnapshot(doc(db, 'users', uid, 'profile', 'main'), snap => {
-        setPlan(snap.data()?.plan ?? null)
+        setMode(snap.data()?.mode ?? null)
         markLoaded()
       }),
-      onSnapshot(collection(db, 'users', uid, 'workouts'), snap => {
+      onSnapshot(collection(db, 'users', uid, 'picks'), snap => {
         const map = {}
         snap.forEach(d => { map[d.id] = d.data() })
-        setWorkouts(map)
+        setPicks(map)
         markLoaded()
       }),
-      onSnapshot(collection(db, 'users', uid, 'completedDays'), snap => {
+      onSnapshot(collection(db, 'users', uid, 'completedWeeks'), snap => {
         const map = {}
         snap.forEach(d => { map[d.id] = true })
-        setCompletedDays(map)
+        setCompletedWeeks(map)
         markLoaded()
       }),
       onSnapshot(doc(db, 'users', uid, 'stats', 'main'), snap => {
@@ -43,47 +41,47 @@ export function useUserData(uid) {
     return () => unsubs.forEach(u => u())
   }, [uid])
 
-  const savePlan = useCallback((newPlan) => {
-    setDoc(doc(db, 'users', uid, 'profile', 'main'), { plan: newPlan }, { merge: true })
+  const saveMode = useCallback((newMode) => {
+    setDoc(doc(db, 'users', uid, 'profile', 'main'), { mode: newMode }, { merge: true })
   }, [uid])
 
-  const saveWorkout = useCallback((dayIndex, selectedIds) => {
-    const key = `${getWeekKey()}-${dayIndex}`
+  const savePicks = useCallback((week, selectedIds) => {
+    const key = getWeekKey(week)
     setDoc(
-      doc(db, 'users', uid, 'workouts', key),
-      { exercises: selectedIds, done: [] },
+      doc(db, 'users', uid, 'picks', key),
+      { games: selectedIds, picks: {} },
       { merge: true }
     )
   }, [uid])
 
-  const finishWorkout = useCallback(async (dayIndex, doneIds) => {
-    const key = `${getWeekKey()}-${dayIndex}`
-    const date = dateFromDayIndex(dayIndex)
+  const lockPick = useCallback((week, gameId, teamAbbr) => {
+    const key = getWeekKey(week)
+    setDoc(
+      doc(db, 'users', uid, 'picks', key),
+      { picks: { [gameId]: teamAbbr } },
+      { merge: true }
+    )
+  }, [uid])
+
+  const submitPicks = useCallback(async (week) => {
+    const key = getWeekKey(week)
 
     await Promise.all([
-      setDoc(
-        doc(db, 'users', uid, 'workouts', key),
-        { done: doneIds },
-        { merge: true }
-      ),
-      setDoc(doc(db, 'users', uid, 'completedDays', date), {
+      setDoc(doc(db, 'users', uid, 'completedWeeks', key), {
         completed: true,
         timestamp: serverTimestamp(),
       }),
     ])
 
-    // recalculate streak with the new day included
-    const updated = { ...completedDays, [date]: true }
+    // streak = consecutive weeks submitted
+    const updated = { ...completedWeeks, [key]: true }
     let s = 0
-    const today = new Date()
-    for (let i = 0; i < 365; i++) {
-      const d = new Date(today)
-      d.setDate(d.getDate() - i)
-      if (updated[d.toISOString().slice(0, 10)]) s++
+    for (let w = parseInt(week); w >= 1; w--) {
+      if (updated[getWeekKey(w)]) s++
       else break
     }
     setDoc(doc(db, 'users', uid, 'stats', 'main'), { streak: s }, { merge: true })
-  }, [uid, completedDays])
+  }, [uid, completedWeeks])
 
-  return { plan, workouts, completedDays, streak, loading, savePlan, saveWorkout, finishWorkout }
+  return { mode, picks, completedWeeks, streak, loading, saveMode, savePicks, lockPick, submitPicks }
 }

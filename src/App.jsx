@@ -3,14 +3,13 @@ import { useAuth } from './contexts/AuthContext'
 import { useUserData } from './hooks/useUserData'
 import LoginPage from './pages/Login'
 import HomePage from './pages/Home'
-import PlanPage from './pages/Plan'
+import ModePage from './pages/Plan'
 import BuilderPage from './pages/Builder'
-import WorkoutPage from './pages/Workout'
+import PicksPage from './pages/Workout'
 
 export default function App() {
   const { user } = useAuth()
 
-  // Still resolving auth state — show blank dark screen
   if (user === undefined) return <div style={{ minHeight: '100vh', background: '#020817' }} />
 
   if (!user) return <LoginPage />
@@ -30,9 +29,9 @@ function AuthedApp({ uid }) {
   return (
     <Routes>
       <Route path="/" element={<HomePage {...data} />} />
-      <Route path="/plan" element={<PlanPage {...data} />} />
+      <Route path="/plan" element={<ModePage {...data} />} />
       <Route path="/builder/:dayIndex" element={<BuilderPage {...data} />} />
-      <Route path="/workout/:dayIndex" element={<WorkoutPage {...data} />} />
+      <Route path="/workout/:dayIndex" element={<PicksPage {...data} />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

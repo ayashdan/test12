@@ -20,7 +20,7 @@ export const S = {
     paddingBottom: 16,
   },
   logo: {
-    background: 'linear-gradient(135deg, #f97316, #fbbf24)',
+    background: 'linear-gradient(135deg, #22c55e, #facc15)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
     backgroundClip: 'text',
@@ -39,7 +39,7 @@ export const S = {
     marginTop: 2,
   },
   btnPrimary: {
-    background: 'linear-gradient(135deg, #f97316, #fbbf24)',
+    background: 'linear-gradient(135deg, #22c55e, #16a34a)',
     color: '#020817',
     border: 'none',
     borderRadius: 8,
