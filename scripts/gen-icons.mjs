@@ -1,49 +1,58 @@
 import sharp from 'sharp'
-import { writeFileSync, mkdirSync } from 'fs'
+import { mkdirSync } from 'fs'
 
 function makeSVG(size) {
-  const cx = size / 2
-  const cy = size / 2
-  const rx = size * 0.42
-  const ry = size * 0.30
-  const fontSize = size * 0.13
-  const numY = size * 0.14
-  const scoreOffset = size * 0.22
-  const laceCenterX = cx + size * 0.05
-  const laceTop = cy - ry * 0.65
-  const laceBot = cy + ry * 0.65
-  const laceStep = (laceBot - laceTop) / 5
-  const laceWidth = size * 0.10
-  const stripeY1 = cy - ry * 0.48
-  const stripeY2 = cy + ry * 0.48
-  const bg = '#0b1120'
+  const s = size
+  const r = s * 0.22  // corner radius
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-  <!-- Background -->
-  <rect width="${size}" height="${size}" rx="${size * 0.22}" fill="${bg}"/>
+  // Football dimensions - very elongated so it's clearly a football not a circle
+  const cx = s * 0.5
+  const cy = s * 0.54
+  const rx = s * 0.36
+  const ry = s * 0.22
 
-  <!-- Score numbers -->
-  <text x="${cx - scoreOffset}" y="${numY}" font-family="monospace" font-size="${fontSize}" font-weight="900" fill="#22c55e" text-anchor="middle">21</text>
-  <text x="${cx + scoreOffset}" y="${numY}" font-family="monospace" font-size="${fontSize}" font-weight="900" fill="#facc15" text-anchor="middle">17</text>
+  const lx = cx + s * 0.04  // lace x center
+  const lTop = cy - ry * 0.75
+  const lBot = cy + ry * 0.75
+  const lw = s * 0.08  // lace stitch width
+  const sw = s * 0.028  // stroke width
 
-  <!-- Football body -->
+  const numSize = s * 0.145
+  const numY = s * 0.255
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="${size}" y2="${size}" gradientUnits="userSpaceOnUse">
+    <linearGradient id="bg" x1="0" y1="0" x2="${s}" y2="${s}" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#16a34a"/>
+      <stop offset="100%" stop-color="#14532d"/>
+    </linearGradient>
+    <linearGradient id="ball" x1="${cx-rx}" y1="${cy-ry}" x2="${cx+rx}" y2="${cy+ry}" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#f97316"/>
-      <stop offset="100%" stop-color="#92400e"/>
+      <stop offset="100%" stop-color="#7c2d12"/>
     </linearGradient>
   </defs>
-  <ellipse cx="${cx}" cy="${cy + size * 0.05}" rx="${rx}" ry="${ry}" fill="url(#g)"/>
 
-  <!-- White stripes -->
-  <path d="M${cx - rx * 0.65} ${stripeY1 + size * 0.05} Q${cx} ${stripeY1 - size * 0.05 + size * 0.05} ${cx + rx * 0.65} ${stripeY1 + size * 0.05}" stroke="white" stroke-width="${size * 0.025}" fill="none" stroke-linecap="round" opacity="0.7"/>
-  <path d="M${cx - rx * 0.65} ${stripeY2 + size * 0.05} Q${cx} ${stripeY2 + size * 0.05 + size * 0.05} ${cx + rx * 0.65} ${stripeY2 + size * 0.05}" stroke="white" stroke-width="${size * 0.025}" fill="none" stroke-linecap="round" opacity="0.7"/>
+  <!-- Green background -->
+  <rect width="${s}" height="${s}" rx="${r}" fill="url(#bg)"/>
+
+  <!-- Score numbers -->
+  <text x="${cx - s*0.21}" y="${numY}" font-family="monospace" font-size="${numSize}" font-weight="900" fill="#ffffff" text-anchor="middle" opacity="0.95">21</text>
+  <text x="${cx + s*0.21}" y="${numY}" font-family="monospace" font-size="${numSize}" font-weight="900" fill="#facc15" text-anchor="middle" opacity="0.95">17</text>
+
+  <!-- Football body - wide ellipse -->
+  <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#ball)"/>
+
+  <!-- White end stripes -->
+  <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="none" stroke="white" stroke-width="${sw * 2.5}" stroke-dasharray="${ry * 1.2} ${rx * 6}" opacity="0.35"/>
 
   <!-- Lace center line -->
-  <line x1="${laceCenterX}" y1="${laceTop + size * 0.05}" x2="${laceCenterX}" y2="${laceBot + size * 0.05}" stroke="white" stroke-width="${size * 0.025}" stroke-linecap="round"/>
+  <line x1="${lx}" y1="${lTop}" x2="${lx}" y2="${lBot}" stroke="white" stroke-width="${sw}" stroke-linecap="round"/>
 
-  <!-- Lace stitches -->
-  ${[0,1,2,3,4].map(i => `<line x1="${laceCenterX}" y1="${laceTop + i * laceStep + size * 0.05}" x2="${laceCenterX + laceWidth}" y2="${laceTop + i * laceStep + size * 0.05}" stroke="white" stroke-width="${size * 0.025}" stroke-linecap="round"/>`).join('\n  ')}
+  <!-- Lace stitches (5 of them) -->
+  ${[0,1,2,3,4].map(i => {
+    const y = lTop + (lBot - lTop) * i / 4
+    return `<line x1="${lx}" y1="${y}" x2="${lx + lw}" y2="${y}" stroke="white" stroke-width="${sw}" stroke-linecap="round"/>`
+  }).join('\n  ')}
 </svg>`
 }
 
@@ -51,6 +60,6 @@ mkdirSync('public/icons', { recursive: true })
 
 for (const size of [192, 512]) {
   const svg = Buffer.from(makeSVG(size))
-  await sharp(svg).png().toFile(`public/icons/icon-${size}.png`)
-  console.log(`Generated icon-${size}.png`)
+  await sharp(svg).png().toFile(`public/icons/icon-${size}-v2.png`)
+  console.log(`Generated icon-${size}-v2.png`)
 }
