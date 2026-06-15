@@ -1,14 +1,18 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth'
+import { onAuthStateChanged, signInWithPopup, getRedirectResult, signOut } from 'firebase/auth'
 import { auth, provider } from '../firebase'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  // undefined = still loading, null = signed out, object = signed in
   const [user, setUser] = useState(undefined)
 
-  useEffect(() => onAuthStateChanged(auth, setUser), [])
+  useEffect(() => {
+    // Clear any stale redirect state left over from previous signInWithRedirect attempts.
+    // Without this, users who hit the old redirect flow get "missing initial state" forever.
+    getRedirectResult(auth).catch(() => {})
+    return onAuthStateChanged(auth, setUser)
+  }, [])
 
   const login = () => signInWithPopup(auth, provider)
   const logout = () => signOut(auth)

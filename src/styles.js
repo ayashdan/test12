@@ -1,8 +1,8 @@
 export const S = {
   app: {
     minHeight: '100vh',
-    background: '#020817',
-    color: '#f8fafc',
+    background: 'var(--bg)',
+    color: 'var(--text1)',
     fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
   },
   container: {
@@ -33,7 +33,7 @@ export const S = {
   logoSub: {
     fontSize: 9,
     letterSpacing: '0.15em',
-    color: '#475569',
+    color: 'var(--text4)',
     fontWeight: 600,
     textTransform: 'uppercase',
     marginTop: 2,
@@ -52,8 +52,8 @@ export const S = {
   },
   btnGhost: {
     background: 'transparent',
-    color: '#94a3b8',
-    border: '1px solid #1e293b',
+    color: 'var(--text2)',
+    border: '1px solid var(--border)',
     borderRadius: 8,
     padding: '8px 14px',
     fontWeight: 600,
@@ -82,8 +82,8 @@ export const S = {
     cursor: 'pointer',
   },
   card: {
-    background: '#0f172a',
-    border: '1px solid #1e293b',
+    background: 'var(--bg4)',
+    border: '1px solid var(--border)',
     borderRadius: 12,
     padding: 14,
   },
@@ -91,7 +91,7 @@ export const S = {
     fontSize: 11,
     fontWeight: 700,
     letterSpacing: '0.12em',
-    color: '#475569',
+    color: 'var(--text4)',
     textTransform: 'uppercase',
     marginBottom: 10,
     marginTop: 20,
