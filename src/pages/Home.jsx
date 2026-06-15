@@ -36,6 +36,12 @@ function BottomNav({ active, onNav }) {
         <path d="M22 20c0-2.761-1.79-5-4-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
       </svg>
     )},
+    { id: 'people', label: 'People', icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M4 20c0-4 3.582-7 8-7s8 3 8 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    )},
     { id: 'record', label: 'Record', icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
         <polyline points="3,18 8,12 13,15 21,6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -431,6 +437,47 @@ function RecordTab({ picks, totalPoints, correctPicks, totalPicks, streak }) {
 
 // ─── SETTINGS TAB ─────────────────────────────────────────────────────────
 
+// ─── PEOPLE TAB ───────────────────────────────────────────────────────────
+
+function PeopleTab({ leaderboard, uid }) {
+  return (
+    <div>
+      <div style={{ fontWeight: 900, fontSize: 22, color: 'var(--text1)', marginBottom: 4 }}>People</div>
+      <div style={{ fontSize: 13, color: 'var(--text3)', marginBottom: 20 }}>{leaderboard.length} players in the app</div>
+      {leaderboard.map((person, i) => {
+        const isMe = person.uid === uid
+        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : null
+        return (
+          <div key={person.uid} style={{
+            background: isMe ? 'rgba(34,197,94,0.06)' : 'var(--bg2)',
+            border: `1px solid ${isMe ? 'rgba(34,197,94,0.3)' : 'var(--border)'}`,
+            borderRadius: 14, padding: '12px 14px', marginBottom: 8,
+            display: 'flex', alignItems: 'center', gap: 12,
+          }}>
+            <div style={{ fontSize: 13, fontWeight: 900, color: 'var(--text4)', minWidth: 28, textAlign: 'center', fontFamily: 'DM Mono' }}>
+              {medal || `#${i + 1}`}
+            </div>
+            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--bg3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, fontWeight: 700, color: 'var(--text2)', flexShrink: 0 }}>
+              {(person.displayName || '?')[0].toUpperCase()}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 700, fontSize: 14, color: isMe ? '#22c55e' : 'var(--text1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {person.displayName || 'Unknown'}{isMe ? ' (you)' : ''}
+              </div>
+            </div>
+            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+              <div style={{ fontSize: 17, fontWeight: 900, color: '#facc15', fontFamily: 'DM Mono' }}>{person.totalPoints || 0}</div>
+              <div style={{ fontSize: 10, color: 'var(--text4)' }}>pts</div>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// ─── SETTINGS TAB ─────────────────────────────────────────────────────────
+
 function SettingsTab({ mode, saveMode, logout }) {
   const { theme, toggleTheme } = useTheme()
 
@@ -560,6 +607,7 @@ export default function HomePage({ mode, picks, completedWeeks, totalPoints, cor
         {activeTab === 'picks' && <PicksTab mode={mode} picks={picks} completedWeeks={completedWeeks} savePicks={savePicks} navigate={navigate} />}
         {activeTab === 'games' && <GamesTab picks={picks} />}
         {activeTab === 'groups' && <GroupsTab uid={user?.uid} user={user} leaderboard={leaderboard} groups={groups} loading={groupsLoading} isGlobalAdmin={isGlobalAdmin} createGroup={createGroup} joinGroup={joinGroup} adjustPoints={adjustPoints} promoteAdmin={promoteAdmin} demoteAdmin={demoteAdmin} removeMember={removeMember} leaveGroup={leaveGroup} getGroupMembers={getGroupMembers} getAllUsers={getAllUsers} addMemberByUid={addMemberByUid} />}
+        {activeTab === 'people' && <PeopleTab leaderboard={leaderboard} uid={user?.uid} />}
         {activeTab === 'record' && <RecordTab picks={picks} totalPoints={totalPoints} correctPicks={correctPicks} totalPicks={totalPicks} streak={streak} applyResults={applyResults} />}
         {activeTab === 'settings' && <SettingsTab mode={mode} saveMode={saveMode} logout={logout} />}
       </div>
