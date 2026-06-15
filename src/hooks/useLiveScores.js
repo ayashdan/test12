@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 
-// ESPN abbreviation → our abbreviation
 const ESPN_MAP = { WSH: 'WAS', JAC: 'JAX' }
 function mapAbbr(a) { return ESPN_MAP[a] || a }
 
@@ -57,7 +56,11 @@ export function useLiveScores() {
   return { scores, loading, lastUpdated, getScore, refresh: fetchScores }
 }
 
-// Points calculation given a user pick + predicted score vs actual ESPN score
+// Points system:
+//   Correct winner:           3 pts
+//   + Score diff ≤ 7:        +1 pt  (total 4)
+//   + Score diff ≤ 3:        +2 pts (total 5)
+//   Exact score:              5 pts  (= correct + tight diff)
 export function calcPoints(userPick, predicted, actual) {
   if (!actual || actual.status === 'pre') return null
   const winner = actual.away > actual.home ? actual.awayTeam : actual.homeTeam
@@ -66,23 +69,22 @@ export function calcPoints(userPick, predicted, actual) {
   const breakdown = []
 
   if (!isTie && userPick === winner) {
-    pts += 10
-    breakdown.push({ label: 'Correct winner', pts: 10 })
+    pts += 3
+    breakdown.push({ label: 'Correct winner', pts: 3 })
 
-    if (predicted?.away !== '' && predicted?.home !== '' && predicted?.away != null) {
+    if (predicted?.away !== '' && predicted?.away != null && predicted?.home != null) {
       const pAway = parseInt(predicted.away)
       const pH = parseInt(predicted.home)
       if (!isNaN(pAway) && !isNaN(pH)) {
         if (pAway === actual.away && pH === actual.home) {
-          pts += 25
-          breakdown.push({ label: 'Exact score', pts: 25 })
+          pts += 2
+          breakdown.push({ label: 'Exact score', pts: 2 })
         } else {
           const pDiff = Math.abs(pAway - pH)
           const aDiff = Math.abs(actual.away - actual.home)
           const err = Math.abs(pDiff - aDiff)
-          if (err <= 2) { pts += 12; breakdown.push({ label: 'Score diff ≤2', pts: 12 }) }
-          else if (err <= 5) { pts += 7; breakdown.push({ label: 'Score diff ≤5', pts: 7 }) }
-          else if (err <= 10) { pts += 3; breakdown.push({ label: 'Score diff ≤10', pts: 3 }) }
+          if (err <= 3) { pts += 2; breakdown.push({ label: 'Score diff ≤3', pts: 2 }) }
+          else if (err <= 7) { pts += 1; breakdown.push({ label: 'Score diff ≤7', pts: 1 }) }
         }
       }
     }

@@ -11,7 +11,7 @@ export default function LoginPage() {
         <div style={S.logoSub}>PICK. TRACK. WIN.</div>
 
         <div style={{ marginTop: 40, marginBottom: 12, fontSize: 32 }}>🏈</div>
-        <div style={{ color: '#94a3b8', fontSize: 14, lineHeight: 1.7, marginBottom: 36 }}>
+        <div style={{ color: 'var(--text2)', fontSize: 14, lineHeight: 1.7, marginBottom: 36 }}>
           Predict every game. Own every week.<br />Sign in to track your picks across devices.
         </div>
 
