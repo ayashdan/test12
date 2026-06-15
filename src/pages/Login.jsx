@@ -7,12 +7,12 @@ export default function LoginPage() {
   return (
     <div style={{ ...S.app, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
       <div style={{ textAlign: 'center', padding: 32 }}>
-        <div style={S.logo}>FORGE</div>
-        <div style={S.logoSub}>BUILD. TRACK. REPEAT.</div>
+        <div style={S.logo}>BLITZ</div>
+        <div style={S.logoSub}>PICK. TRACK. WIN.</div>
 
-        <div style={{ marginTop: 40, marginBottom: 12, fontSize: 32 }}>🏋️</div>
+        <div style={{ marginTop: 40, marginBottom: 12, fontSize: 32 }}>🏈</div>
         <div style={{ color: '#94a3b8', fontSize: 14, lineHeight: 1.7, marginBottom: 36 }}>
-          Track every rep. Own every day.<br />Sign in to save your progress across devices.
+          Predict every game. Own every week.<br />Sign in to track your picks across devices.
         </div>
 
         <button
