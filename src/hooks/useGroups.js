@@ -106,7 +106,7 @@ export function useGroups(uid, displayName, photoURL) {
   }
 
   async function addMemberByUid(groupId, targetUid) {
-    const userSnap = await getDoc(doc(db, 'users', targetUid))
+    const userSnap = await getDoc(doc(db, 'leaderboard', targetUid))
     if (!userSnap.exists()) throw new Error('User not found')
     const userData = userSnap.data()
     await updateDoc(doc(db, 'groups', groupId), { memberUids: arrayUnion(targetUid) })
