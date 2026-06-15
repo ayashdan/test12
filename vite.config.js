@@ -9,9 +9,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icons/icon-192.png', 'icons/icon-512.png'],
       manifest: {
-        name: 'FORGE — Build. Track. Repeat.',
-        short_name: 'FORGE',
-        description: 'Your personal gym workout tracker',
+        name: 'BLITZ — NFL Picks',
+        short_name: 'BLITZ',
+        description: 'Predict every NFL game. Track your picks. Win.',
         theme_color: '#020817',
         background_color: '#020817',
         display: 'standalone',
