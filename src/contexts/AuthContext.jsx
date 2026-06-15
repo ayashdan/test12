@@ -1,16 +1,24 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth'
+import { onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, signOut } from 'firebase/auth'
 import { auth, provider } from '../firebase'
 
 const AuthContext = createContext(null)
 
+const isMobile = () => /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+
 export function AuthProvider({ children }) {
-  // undefined = still loading, null = signed out, object = signed in
   const [user, setUser] = useState(undefined)
 
-  useEffect(() => onAuthStateChanged(auth, setUser), [])
+  useEffect(() => {
+    // Handle redirect result on mobile after returning from Google
+    getRedirectResult(auth).catch(() => {})
+    return onAuthStateChanged(auth, setUser)
+  }, [])
 
-  const login = () => signInWithPopup(auth, provider)
+  const login = () => isMobile()
+    ? signInWithRedirect(auth, provider)
+    : signInWithPopup(auth, provider)
+
   const logout = () => signOut(auth)
 
   return (
