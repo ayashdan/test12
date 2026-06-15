@@ -10,46 +10,91 @@ function fmtTime(s) {
   return `${m}:${String(sec).padStart(2, '0')}`
 }
 
+// ─── SCORE INPUTS ─────────────────────────────────────────────────────────
+
+function ScorePrediction({ game, score, onChange }) {
+  const away = TEAMS[game.away] || {}
+  const home = TEAMS[game.home] || {}
+  const inputStyle = {
+    width: '100%', background: '#0a1628', border: '1px solid #1e293b',
+    borderRadius: 10, padding: '10px 6px', fontSize: 26, fontWeight: 900,
+    color: '#f1f5f9', textAlign: 'center', fontFamily: 'DM Mono, monospace',
+    outline: 'none', boxSizing: 'border-box',
+  }
+  return (
+    <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 14, padding: '14px', marginBottom: 8 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', letterSpacing: '0.08em', textAlign: 'center', marginBottom: 12 }}>PREDICTED SCORE (optional · bonus points)</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ flex: 1, textAlign: 'center' }}>
+          <div style={{ fontSize: 11, color: '#64748b', marginBottom: 6, fontWeight: 600 }}>{game.away} · {away.name}</div>
+          <input type="number" min="0" max="99" placeholder="0"
+            value={score?.away ?? ''}
+            onChange={e => onChange({ ...score, away: e.target.value })}
+            style={inputStyle} />
+        </div>
+        <div style={{ fontSize: 18, color: '#334155', fontWeight: 900, flexShrink: 0 }}>—</div>
+        <div style={{ flex: 1, textAlign: 'center' }}>
+          <div style={{ fontSize: 11, color: '#64748b', marginBottom: 6, fontWeight: 600 }}>{game.home} · {home.name}</div>
+          <input type="number" min="0" max="99" placeholder="0"
+            value={score?.home ?? ''}
+            onChange={e => onChange({ ...score, home: e.target.value })}
+            style={inputStyle} />
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+        {[{ label: 'Correct winner', pts: '+10 pts' }, { label: 'Score diff ≤2', pts: '+12' }, { label: 'Exact score', pts: '+25' }].map(b => (
+          <div key={b.label} style={{ fontSize: 10, color: '#475569', background: '#0f172a', border: '1px solid #1e293b', borderRadius: 6, padding: '3px 8px' }}>
+            {b.label} <span style={{ color: '#22c55e', fontWeight: 700 }}>{b.pts}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ─── GAME PICK ROW ────────────────────────────────────────────────────────
 
 function GamePickRow({ game, pick, onPick, onClear }) {
   const away = TEAMS[game.away] || {}
   const home = TEAMS[game.home] || {}
   const isPicked = !!pick
+  const pickedTeam = isPicked ? TEAMS[pick] : null
 
   return (
-    <div style={{ background: isPicked ? (TEAMS[pick]?.color || '#22c55e') : '#111827', border: isPicked ? 'none' : '1px solid #1e293b', borderRadius: 14, marginBottom: 8, overflow: 'hidden' }}>
+    <div style={{
+      background: isPicked ? (pickedTeam?.color || '#22c55e') : '#111827',
+      border: isPicked ? 'none' : '1px solid #1e293b',
+      borderRadius: 14, marginBottom: 8, overflow: 'hidden',
+    }}>
       <div style={{ display: 'flex', alignItems: 'stretch' }}>
         {/* Away */}
         <div onClick={() => !isPicked && onPick(game.away)}
           style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '18px 8px',
             background: pick === game.away ? `${away.color}cc` : 'transparent',
-            opacity: isPicked && pick !== game.away ? 0.35 : 1,
+            opacity: isPicked && pick !== game.away ? 0.3 : 1,
             cursor: isPicked ? 'default' : 'pointer',
-            borderRight: '1px solid rgba(255,255,255,0.07)',
-            transition: 'all 0.15s ease' }}>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#f1f5f9', fontFamily: 'DM Mono, monospace', lineHeight: 1 }}>{game.away}</div>
-          <div style={{ fontSize: 11, color: isPicked && pick === game.away ? 'rgba(255,255,255,0.7)' : '#64748b', marginTop: 4 }}>Away</div>
+            borderRight: '1px solid rgba(255,255,255,0.07)', transition: 'all 0.15s' }}>
+          <div style={{ fontSize: 24, fontWeight: 900, color: '#f1f5f9', fontFamily: 'DM Mono, monospace', lineHeight: 1 }}>{game.away}</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>Away</div>
         </div>
-        {/* VS / check */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 10px', fontSize: isPicked ? 18 : 12, color: isPicked ? 'rgba(255,255,255,0.8)' : '#334155', fontWeight: 700 }}>
+        {/* VS */}
+        <div style={{ display: 'flex', alignItems: 'center', padding: '0 10px', fontSize: isPicked ? 20 : 13, color: isPicked ? 'rgba(255,255,255,0.8)' : '#334155', fontWeight: 900 }}>
           {isPicked ? '✓' : '@'}
         </div>
         {/* Home */}
         <div onClick={() => !isPicked && onPick(game.home)}
           style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '18px 8px',
             background: pick === game.home ? `${home.color}cc` : 'transparent',
-            opacity: isPicked && pick !== game.home ? 0.35 : 1,
+            opacity: isPicked && pick !== game.home ? 0.3 : 1,
             cursor: isPicked ? 'default' : 'pointer',
-            borderLeft: '1px solid rgba(255,255,255,0.07)',
-            transition: 'all 0.15s ease' }}>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#f1f5f9', fontFamily: 'DM Mono, monospace', lineHeight: 1 }}>{game.home}</div>
-          <div style={{ fontSize: 11, color: isPicked && pick === game.home ? 'rgba(255,255,255,0.7)' : '#64748b', marginTop: 4 }}>Home</div>
+            borderLeft: '1px solid rgba(255,255,255,0.07)', transition: 'all 0.15s' }}>
+          <div style={{ fontSize: 24, fontWeight: 900, color: '#f1f5f9', fontFamily: 'DM Mono, monospace', lineHeight: 1 }}>{game.home}</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>Home</div>
         </div>
       </div>
       {isPicked && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '9px', background: 'rgba(0,0,0,0.25)', cursor: 'pointer' }} onClick={onClear}>
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', fontWeight: 700 }}>Change Pick</span>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 700 }}>Change Pick</span>
         </div>
       )}
     </div>
@@ -58,19 +103,20 @@ function GamePickRow({ game, pick, onPick, onClear }) {
 
 // ─── PICKS PAGE ───────────────────────────────────────────────────────────
 
-export default function PicksPage({ picks: picksData, lockPick, submitPicks }) {
+export default function PicksPage({ picks: picksData, lockPick, lockScore, submitPicks }) {
   const navigate = useNavigate()
   const { dayIndex: weekParam } = useParams()
   const week = parseInt(weekParam, 10)
 
   const weekKey = getWeekKey(week)
-  const weekPicks = picksData[weekKey] || { games: [], picks: {} }
+  const weekPickData = picksData[weekKey] || { games: [], picks: {}, scores: {} }
   const allGames = GAMES[week] || []
-  const games = allGames.filter(g => weekPicks.games?.includes(g.id))
+  const games = allGames.filter(g => weekPickData.games?.includes(g.id))
 
   const [gameIndex, setGameIndex] = useState(0)
   const [elapsed, setElapsed] = useState(0)
-  const [localPicks, setLocalPicks] = useState(weekPicks.picks || {})
+  const [localPicks, setLocalPicks] = useState(weekPickData.picks || {})
+  const [localScores, setLocalScores] = useState(weekPickData.scores || {})
 
   useEffect(() => {
     const t = setInterval(() => setElapsed(s => s + 1), 1000)
@@ -82,6 +128,7 @@ export default function PicksPage({ picks: picksData, lockPick, submitPicks }) {
   const isLastGame = gameIndex === games.length - 1
   const nextGame = games[gameIndex + 1]
   const currentPick = currentGame ? localPicks[currentGame.id] : null
+  const currentScore = currentGame ? localScores[currentGame.id] : null
 
   function handlePick(teamAbbr) {
     if (!currentGame) return
@@ -95,8 +142,17 @@ export default function PicksPage({ picks: picksData, lockPick, submitPicks }) {
     delete updated[currentGame.id]
     setLocalPicks(updated)
   }
+  function handleScoreChange(s) {
+    if (!currentGame) return
+    const updated = { ...localScores, [currentGame.id]: s }
+    setLocalScores(updated)
+    if (s.away !== '' || s.home !== '') {
+      lockScore(week, currentGame.id, s.away, s.home)
+    }
+  }
   async function handleSubmit() {
-    await submitPicks(week)
+    const pickedIds = games.filter(g => localPicks[g.id]).map(g => g.id)
+    await submitPicks(week, pickedIds)
     navigate('/')
   }
 
@@ -147,7 +203,7 @@ export default function PicksPage({ picks: picksData, lockPick, submitPicks }) {
                 <TeamDisplay abbr={currentGame.away} size={72} />
                 <div style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600 }}>{currentAway.city}</div>
               </div>
-              <div style={{ fontSize: 20, color: '#334155', fontWeight: 900 }}>@</div>
+              <div style={{ fontSize: 22, color: '#334155', fontWeight: 900 }}>@</div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
                 <TeamDisplay abbr={currentGame.home} size={72} />
                 <div style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600 }}>{currentHome.city}</div>
@@ -158,12 +214,12 @@ export default function PicksPage({ picks: picksData, lockPick, submitPicks }) {
 
         {/* Pick row */}
         {currentGame && (
-          <GamePickRow
-            game={currentGame}
-            pick={currentPick}
-            onPick={handlePick}
-            onClear={handleClear}
-          />
+          <GamePickRow game={currentGame} pick={currentPick} onPick={handlePick} onClear={handleClear} />
+        )}
+
+        {/* Score prediction — shown after picking */}
+        {currentGame && currentPick && (
+          <ScorePrediction game={currentGame} score={currentScore} onChange={handleScoreChange} />
         )}
 
         {!currentPick && (
@@ -171,7 +227,7 @@ export default function PicksPage({ picks: picksData, lockPick, submitPicks }) {
         )}
 
         {currentPick && !isLastGame && (
-          <button onClick={() => { setGameIndex(i => i + 1) }} style={{ ...btnPrimary, width: '100%', textAlign: 'center', marginBottom: 16, marginTop: 8 }}>
+          <button onClick={() => setGameIndex(i => i + 1)} style={{ ...btnPrimary, width: '100%', textAlign: 'center', marginBottom: 16, marginTop: 8 }}>
             Next Game →
           </button>
         )}
