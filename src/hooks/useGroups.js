@@ -100,7 +100,8 @@ export function useGroups(uid, displayName, photoURL) {
   }
 
   async function getAllUsers() {
-    const snap = await getDocs(collection(db, 'users'))
+    // Read from leaderboard collection which has all users who ever signed in
+    const snap = await getDocs(collection(db, 'leaderboard'))
     return snap.docs.map(d => ({ uid: d.id, ...d.data() }))
   }
 
