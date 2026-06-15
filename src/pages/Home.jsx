@@ -11,8 +11,6 @@ import { useLiveScores, calcPoints } from '../hooks/useLiveScores'
 import { getCurrentNFLWeek, getWeekKey } from '../utils/dates'
 import GroupsTab from '../components/GroupsTab'
 import { useGroups } from '../hooks/useGroups'
-import GroupsTab from '../components/GroupsTab'
-import { useGroups } from '../hooks/useGroups'
 
 // ─── BOTTOM NAV ───────────────────────────────────────────────────────────
 
@@ -500,8 +498,7 @@ export default function HomePage({ mode, picks, completedWeeks, totalPoints, cor
   const { theme, toggleTheme } = useTheme()
   const [activeTab, setActiveTab] = useState('picks')
   const { groups, loading: groupsLoading, createGroup, joinGroup, getGroupMembers, adjustPoints, promoteAdmin, demoteAdmin, removeMember, leaveGroup } = useGroups(user?.uid, user?.displayName, user?.photoURL)
-  const { groups, loading: groupsLoading, createGroup, joinGroup, getGroupMembers, adjustPoints, promoteAdmin, demoteAdmin, removeMember, leaveGroup } = useGroups(user?.uid, user?.displayName, user?.photoURL)
-
+  
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text1)', fontFamily: "'DM Sans','Segoe UI',sans-serif", paddingBottom: 80 }}>
       <StyleInjector />
