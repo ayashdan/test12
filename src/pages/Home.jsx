@@ -9,6 +9,10 @@ import TeamDisplay, { StyleInjector } from '../components/ExerciseAnimation'
 import DivisionBadge from '../components/MuscleSilhouette'
 import { useLiveScores, calcPoints } from '../hooks/useLiveScores'
 import { getCurrentNFLWeek, getWeekKey } from '../utils/dates'
+import GroupsTab from '../components/GroupsTab'
+import { useGroups } from '../hooks/useGroups'
+import GroupsTab from '../components/GroupsTab'
+import { useGroups } from '../hooks/useGroups'
 
 // ─── BOTTOM NAV ───────────────────────────────────────────────────────────
 
@@ -26,10 +30,12 @@ function BottomNav({ active, onNav }) {
         <path d="M2 12h20M12 5c-2 2-2 10 0 14M12 5c2 2 2 10 0 14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
       </svg>
     )},
-    { id: 'leaderboard', label: 'Leaderboard', icon: (
+    { id: 'groups', label: 'Groups', icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M8 6H4v10h4V6zM14 3h-4v13h4V3zM20 9h-4v7h4V9z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
-        <line x1="2" y1="19" x2="22" y2="19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="9" cy="7" r="3" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M2 20c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        <circle cx="18" cy="7" r="2.5" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M22 20c0-2.761-1.79-5-4-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
       </svg>
     )},
     { id: 'record', label: 'Record', icon: (
@@ -317,66 +323,6 @@ function GamesTab({ picks }) {
   )
 }
 
-// ─── LEADERBOARD TAB ──────────────────────────────────────────────────────
-
-function LeaderboardTab({ leaderboard, userRank, user }) {
-  const medals = ['🥇', '🥈', '🥉']
-  return (
-    <>
-      <div style={{ fontSize: 22, fontWeight: 900, marginBottom: 4, color: 'var(--text1)' }}>Leaderboard</div>
-      <div style={{ color: 'var(--text3)', fontSize: 13, marginBottom: 20 }}>Top pickers · NFL 2026 season</div>
-
-      {leaderboard.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text4)' }}>
-          <div style={{ fontSize: 32, marginBottom: 12 }}>🏆</div>
-          <div style={{ fontWeight: 700, color: 'var(--text1)' }}>No picks yet</div>
-          <div style={{ fontSize: 13, marginTop: 6 }}>Submit your first picks to appear here</div>
-        </div>
-      )}
-
-      {leaderboard.map((entry, i) => {
-        const isMe = entry.uid === user?.uid
-        const accuracy = entry.totalPicks > 0 ? Math.round((entry.correctPicks || 0) / entry.totalPicks * 100) : null
-        return (
-          <div key={entry.uid} style={{
-            background: isMe ? 'rgba(34,197,94,0.08)' : 'var(--bg2)',
-            border: `1px solid ${isMe ? 'rgba(34,197,94,0.4)' : 'var(--border)'}`,
-            borderRadius: 14, padding: '12px 16px', marginBottom: 8,
-            display: 'flex', alignItems: 'center', gap: 12,
-          }}>
-            <div style={{ fontSize: i < 3 ? 22 : 13, fontWeight: 900, color: 'var(--text4)', minWidth: 28, textAlign: 'center', fontFamily: 'DM Mono' }}>
-              {i < 3 ? medals[i] : `#${i + 1}`}
-            </div>
-            {entry.photoURL ? (
-              <img src={entry.photoURL} alt="" style={{ width: 36, height: 36, borderRadius: '50%', flexShrink: 0 }} referrerPolicy="no-referrer" />
-            ) : (
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--bg3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 16, color: 'var(--text2)' }}>
-                {(entry.displayName || '?')[0].toUpperCase()}
-              </div>
-            )}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 700, fontSize: 14, color: isMe ? '#22c55e' : 'var(--text1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {entry.displayName || 'Anonymous'}{isMe ? ' (you)' : ''}
-              </div>
-              <div style={{ fontSize: 11, color: 'var(--text4)' }}>
-                {entry.totalPicks || 0} picks · {accuracy != null ? `${accuracy}% acc` : '—'}
-              </div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 18, fontWeight: 900, color: '#facc15', fontFamily: 'DM Mono' }}>{entry.totalPoints || 0}</div>
-              <div style={{ fontSize: 10, color: 'var(--text4)' }}>pts</div>
-            </div>
-          </div>
-        )
-      })}
-
-      {userRank && userRank > 25 && (
-        <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--text4)', padding: '8px 0' }}>Your rank: #{userRank}</div>
-      )}
-    </>
-  )
-}
-
 // ─── RECORD TAB ───────────────────────────────────────────────────────────
 
 function RecordTab({ picks, totalPoints, correctPicks, totalPicks, streak }) {
@@ -553,6 +499,8 @@ export default function HomePage({ mode, picks, completedWeeks, totalPoints, cor
   const { logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const [activeTab, setActiveTab] = useState('picks')
+  const { groups, loading: groupsLoading, createGroup, joinGroup, getGroupMembers, adjustPoints, promoteAdmin, demoteAdmin, removeMember, leaveGroup } = useGroups(user?.uid, user?.displayName, user?.photoURL)
+  const { groups, loading: groupsLoading, createGroup, joinGroup, getGroupMembers, adjustPoints, promoteAdmin, demoteAdmin, removeMember, leaveGroup } = useGroups(user?.uid, user?.displayName, user?.photoURL)
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text1)', fontFamily: "'DM Sans','Segoe UI',sans-serif", paddingBottom: 80 }}>
@@ -614,7 +562,7 @@ export default function HomePage({ mode, picks, completedWeeks, totalPoints, cor
       <div style={{ padding: '12px 16px 0' }}>
         {activeTab === 'picks' && <PicksTab mode={mode} picks={picks} completedWeeks={completedWeeks} savePicks={savePicks} navigate={navigate} />}
         {activeTab === 'games' && <GamesTab picks={picks} />}
-        {activeTab === 'leaderboard' && <LeaderboardTab leaderboard={leaderboard} userRank={userRank} user={user} />}
+        {activeTab === 'groups' && <GroupsTab uid={user?.uid} user={user} leaderboard={leaderboard} groups={groups} loading={groupsLoading} createGroup={createGroup} joinGroup={joinGroup} adjustPoints={adjustPoints} promoteAdmin={promoteAdmin} demoteAdmin={demoteAdmin} removeMember={removeMember} leaveGroup={leaveGroup} getGroupMembers={getGroupMembers} />}
         {activeTab === 'record' && <RecordTab picks={picks} totalPoints={totalPoints} correctPicks={correctPicks} totalPicks={totalPicks} streak={streak} applyResults={applyResults} />}
         {activeTab === 'settings' && <SettingsTab mode={mode} saveMode={saveMode} logout={logout} />}
       </div>
