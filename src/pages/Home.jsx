@@ -236,90 +236,137 @@ function PicksTab({ mode, picks, completedWeeks, savePicks, navigate }) {
 
 // ─── GAMES TAB ────────────────────────────────────────────────────────────
 
-function GamesTab({ picks }) {
-  const [selectedWeek, setSelectedWeek] = useState(getCurrentNFLWeek())
-  const { getScore, lastUpdated } = useLiveScores()
+import { useNFLSchedule } from '../hooks/useNFLSchedule'
 
-  const allGames = GAMES[selectedWeek] || []
-  const weekPickData = picks[getWeekKey(selectedWeek)]
-  const userPicks = weekPickData?.picks || {}
+function GamesTab({ picks }) {
+  const [selectedWeek, setSelectedWeek] = useState(1)
+  const { games, loading, error } = useNFLSchedule(selectedWeek)
 
   return (
     <>
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2 }}>
-          {[1,2,3,4].map(w => (
-            <button key={w} onClick={() => setSelectedWeek(w)} style={{
-              flexShrink: 0,
-              background: w === selectedWeek ? 'rgba(59,130,246,0.15)' : 'var(--bg2)',
-              border: `1px solid ${w === selectedWeek ? '#3b82f6' : 'var(--border)'}`,
-              borderRadius: 20, padding: '6px 16px',
-              fontSize: 13, fontWeight: w === selectedWeek ? 700 : 500,
-              color: w === selectedWeek ? '#60a5fa' : 'var(--text3)', cursor: 'pointer',
-            }}>Week {w}</button>
-          ))}
-        </div>
-        {lastUpdated && <div style={{ fontSize: 10, color: 'var(--text4)', marginTop: 8 }}>Live scores · {lastUpdated.toLocaleTimeString()}</div>}
+      {/* Week selector */}
+      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4, marginBottom: 16, scrollbarWidth: 'none' }}>
+        {Array.from({ length: 18 }, (_, i) => i + 1).map(w => (
+          <button key={w} onClick={() => setSelectedWeek(w)} style={{
+            flexShrink: 0,
+            background: w === selectedWeek ? 'rgba(34,197,94,0.15)' : 'var(--bg2)',
+            border: `1px solid ${w === selectedWeek ? '#22c55e' : 'var(--border)'}`,
+            borderRadius: 20, padding: '5px 13px',
+            fontSize: 12, fontWeight: w === selectedWeek ? 700 : 500,
+            color: w === selectedWeek ? '#22c55e' : 'var(--text3)', cursor: 'pointer',
+          }}>W{w}</button>
+        ))}
       </div>
 
-      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: 'var(--text4)', marginBottom: 10 }}>NFL 2026 · WEEK {selectedWeek}</div>
+      {loading && (
+        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text4)', fontSize: 14 }}>Loading schedule...</div>
+      )}
+      {error && (
+        <div style={{ textAlign: 'center', padding: '40px 0', color: '#ef4444', fontSize: 14 }}>{error}</div>
+      )}
+      {!loading && !error && games.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text4)', fontSize: 14 }}>No games scheduled for Week {selectedWeek}</div>
+      )}
 
-      {allGames.map(game => {
-        const away = TEAMS[game.away] || {}
-        const home = TEAMS[game.home] || {}
-        const score = getScore(game)
-        const userPick = userPicks[game.id]
-        const isLive = score?.status === 'live'
-        const isFinal = score?.status === 'final'
+      {games.map(game => {
+        const weekKey = `2026-week-${selectedWeek}`
+        const userPick = picks[weekKey]?.picks?.[game.id]
+        const isLive = game.status === 'in'
+        const isFinal = game.status === 'post'
+        const isPre = game.status === 'pre'
+        const cd = game.countdown
 
         return (
-          <div key={game.id} style={{ background: 'var(--bg2)', border: `1px solid ${isLive ? '#22c55e44' : 'var(--border)'}`, borderRadius: 14, padding: '12px 14px', marginBottom: 8 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <span style={{ fontSize: 10, color: 'var(--text4)', fontWeight: 700 }}>{game.net} · {game.time}</span>
+          <div key={game.id} style={{
+            background: 'var(--bg2)',
+            border: `1px solid ${isLive ? 'rgba(239,68,68,0.4)' : 'var(--border)'}`,
+            borderRadius: 16, marginBottom: 10, overflow: 'hidden',
+          }}>
+            {/* Header row */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px 8px' }}>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text3)' }}>{game.azDate}</div>
+                {game.network && <div style={{ fontSize: 10, color: 'var(--text4)' }}>{game.network}</div>}
+              </div>
               <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                {isLive && <span style={{ fontSize: 9, fontWeight: 700, background: '#22c55e', color: '#0b1120', borderRadius: 4, padding: '2px 6px' }}>● LIVE {score.clock}</span>}
-                {isFinal && <span style={{ fontSize: 9, fontWeight: 700, background: 'var(--bg3)', color: 'var(--text3)', borderRadius: 4, padding: '2px 6px' }}>FINAL</span>}
+                {isLive && (
+                  <span style={{ fontSize: 10, fontWeight: 800, background: '#ef4444', color: 'white', borderRadius: 5, padding: '2px 7px', letterSpacing: '0.05em' }}>● LIVE {game.statusText}</span>
+                )}
+                {isFinal && (
+                  <span style={{ fontSize: 10, fontWeight: 700, background: 'var(--bg3)', color: 'var(--text4)', borderRadius: 5, padding: '2px 7px' }}>FINAL</span>
+                )}
+                {isPre && (
+                  <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--text4)' }}>{game.azTimePart}</span>
+                )}
                 {userPick && (
-                  <span style={{ fontSize: 9, fontWeight: 700, background: `${TEAMS[userPick]?.color}33`, color: TEAMS[userPick]?.color || '#22c55e', border: `1px solid ${TEAMS[userPick]?.color}55`, borderRadius: 4, padding: '2px 6px' }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: 5, padding: '2px 7px' }}>
                     Pick: {userPick}
                   </span>
                 )}
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 8, background: away.color || 'var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <span style={{ fontSize: 10, fontWeight: 900, color: 'white', fontFamily: 'DM Mono' }}>{game.away}</span>
-                </div>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: isFinal && score.away < score.home ? 'var(--text4)' : 'var(--text1)' }}>{away.name}</div>
-                  <div style={{ fontSize: 10, color: 'var(--text4)' }}>Away</div>
-                </div>
-              </div>
-
-              <div style={{ textAlign: 'center', minWidth: 80 }}>
-                {(isLive || isFinal) && score ? (
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontSize: 22, fontWeight: 900, color: score.away >= score.home ? 'var(--text1)' : 'var(--text4)', fontFamily: 'DM Mono' }}>{score.away}</span>
-                    <span style={{ fontSize: 14, color: 'var(--border2)' }}>–</span>
-                    <span style={{ fontSize: 22, fontWeight: 900, color: score.home >= score.away ? 'var(--text1)' : 'var(--text4)', fontFamily: 'DM Mono' }}>{score.home}</span>
-                  </div>
-                ) : (
-                  <div style={{ fontSize: 12, color: 'var(--text4)', fontWeight: 700 }}>vs</div>
+            {/* Teams row */}
+            <div style={{ display: 'flex', alignItems: 'stretch' }}>
+              {/* Away */}
+              <div style={{ flex: 1, background: `${game.away.color}22`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '14px 8px', borderRight: '1px solid var(--border)' }}>
+                <div style={{ fontSize: 26, fontWeight: 900, color: 'var(--text1)', fontFamily: 'DM Mono', lineHeight: 1 }}>{game.away.abbr}</div>
+                <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 3 }}>{game.away.city}</div>
+                {(isLive || isFinal) && (
+                  <div style={{ fontSize: 28, fontWeight: 900, color: parseInt(game.away.score) >= parseInt(game.home.score) ? '#22c55e' : 'var(--text2)', fontFamily: 'DM Mono', marginTop: 4 }}>{game.away.score}</div>
                 )}
               </div>
 
-              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' }}>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: isFinal && score.home < score.away ? 'var(--text4)' : 'var(--text1)' }}>{home.name}</div>
-                  <div style={{ fontSize: 10, color: 'var(--text4)' }}>Home</div>
-                </div>
-                <div style={{ width: 36, height: 36, borderRadius: 8, background: home.color || 'var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <span style={{ fontSize: 10, fontWeight: 900, color: 'white', fontFamily: 'DM Mono' }}>{game.home}</span>
-                </div>
+              {/* Middle */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 14px', minWidth: 56 }}>
+                {isPre ? (
+                  <div style={{ fontSize: 13, color: 'var(--border2)', fontWeight: 900 }}>@</div>
+                ) : (
+                  <div style={{ fontSize: 13, color: 'var(--text4)', fontWeight: 700 }}>–</div>
+                )}
+              </div>
+
+              {/* Home */}
+              <div style={{ flex: 1, background: `${game.home.color}22`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '14px 8px', borderLeft: '1px solid var(--border)' }}>
+                <div style={{ fontSize: 26, fontWeight: 900, color: 'var(--text1)', fontFamily: 'DM Mono', lineHeight: 1 }}>{game.home.abbr}</div>
+                <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 3 }}>{game.home.city}</div>
+                {(isLive || isFinal) && (
+                  <div style={{ fontSize: 28, fontWeight: 900, color: parseInt(game.home.score) >= parseInt(game.away.score) ? '#22c55e' : 'var(--text2)', fontFamily: 'DM Mono', marginTop: 4 }}>{game.home.score}</div>
+                )}
               </div>
             </div>
+
+            {/* Countdown */}
+            {isPre && cd && (
+              <div style={{ textAlign: 'center', padding: '8px 14px 4px', borderTop: '1px solid var(--border)' }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#22c55e', fontFamily: 'DM Mono' }}>
+                  {cd.days > 0 ? `${cd.days}d ` : ''}{cd.hours}h {cd.minutes}m {cd.seconds}s
+                </span>
+                <span style={{ fontSize: 10, color: 'var(--text4)', marginLeft: 6 }}>until kickoff</span>
+              </div>
+            )}
+
+            {/* Win probability bar */}
+            {isPre && game.awayWinPct && game.homeWinPct && (
+              <div style={{ padding: '10px 14px 12px', borderTop: '1px solid var(--border)' }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--text4)', letterSpacing: '0.08em', marginBottom: 6, textAlign: 'center' }}>WIN PROBABILITY (ESPN)</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--text2)', minWidth: 28, textAlign: 'right' }}>{game.awayWinPct}%</span>
+                  <div style={{ flex: 1, height: 8, borderRadius: 4, overflow: 'hidden', background: 'var(--bg3)', display: 'flex' }}>
+                    <div style={{ width: `${game.awayWinPct}%`, background: game.away.color, transition: 'width 0.5s' }} />
+                    <div style={{ flex: 1, background: game.home.color }} />
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--text2)', minWidth: 28 }}>{game.homeWinPct}%</span>
+                </div>
+              </div>
+            )}
+
+            {/* Spread */}
+            {game.spread && (
+              <div style={{ padding: '6px 14px 10px', textAlign: 'center' }}>
+                <span style={{ fontSize: 11, color: 'var(--text4)' }}>{game.spread}{game.overUnder ? ` · O/U ${game.overUnder}` : ''}</span>
+              </div>
+            )}
           </div>
         )
       })}
