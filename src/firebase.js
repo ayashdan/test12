@@ -4,7 +4,8 @@ import { initializeFirestore, persistentLocalCache } from 'firebase/firestore'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  // Use the web.app domain so Safari doesn't treat auth as cross-site (ITP fix)
+  authDomain: import.meta.env.VITE_FIREBASE_PROJECT_ID + '.web.app',
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
