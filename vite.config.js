@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/icon-192.png', 'icons/icon-512.png'],
+      includeAssets: ['icons/icon-192-v2.png', 'icons/icon-512-v2.png'],
       manifest: {
         name: 'BLITZ — NFL Picks',
         short_name: 'BLITZ',
@@ -19,9 +19,9 @@ export default defineConfig({
         start_url: '/',
         scope: '/',
         icons: [
-          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: '/icons/icon-192-v2.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icons/icon-512-v2.png', sizes: '512x512', type: 'image/png' },
+          { src: '/icons/icon-512-v2.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {
@@ -35,11 +35,6 @@ export default defineConfig({
             urlPattern: /^https:\/\/fonts\.gstatic\.com/,
             handler: 'CacheFirst',
             options: { cacheName: 'google-fonts-webfonts', expiration: { maxAgeSeconds: 31536000 } },
-          },
-          {
-            urlPattern: /^https:\/\/img\.youtube\.com\/vi/,
-            handler: 'CacheFirst',
-            options: { cacheName: 'youtube-thumbs', expiration: { maxEntries: 60, maxAgeSeconds: 2592000 } },
           },
         ],
       },
