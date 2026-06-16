@@ -186,7 +186,7 @@ function PicksTab({ mode, picks, completedWeeks, savePicks, navigate }) {
       </div>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto', paddingBottom: 2 }}>
-        {[1,2,3,4].map(w => {
+        {Array.from({ length: 18 }, (_, i) => i + 1).map(w => {
           const isActive = w === selectedWeek
           const isDone = !!completedWeeks[getWeekKey(w)]
           return (
