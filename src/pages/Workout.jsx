@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { GAMES } from '../data/games'
 import { TEAMS } from '../data/teams'
 import TeamDisplay, { StyleInjector } from '../components/ExerciseAnimation'
 import { getWeekKey } from '../utils/dates'
+import { useNFLSchedule } from '../hooks/useNFLSchedule'
+import { espnToGame } from '../data/espnAdapter'
 
 function fmtTime(s) {
   const m = Math.floor(s / 60), sec = s % 60
@@ -105,7 +106,8 @@ export default function PicksPage({ picks: picksData, lockPick, lockScore, submi
 
   const weekKey = getWeekKey(week)
   const weekPickData = picksData[weekKey] || { games: [], picks: {}, scores: {} }
-  const allGames = GAMES[week] || []
+  const { games: espnGames } = useNFLSchedule(week)
+  const allGames = espnGames.map(espnToGame)
   const games = allGames.filter(g => weekPickData.games?.includes(g.id))
 
   const [gameIndex, setGameIndex] = useState(0)

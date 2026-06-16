@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -12,6 +12,7 @@ import { getCurrentNFLWeek, getWeekKey } from '../utils/dates'
 import GroupsTab from '../components/GroupsTab'
 import { useGroups } from '../hooks/useGroups'
 import { useNFLSchedule } from '../hooks/useNFLSchedule'
+import { espnToGame } from '../data/espnAdapter'
 
 // ─── BOTTOM NAV ───────────────────────────────────────────────────────────
 
@@ -138,8 +139,9 @@ function PicksTab({ mode, picks, completedWeeks, savePicks, navigate }) {
   const [rating, setRating] = useState(0)
   const [featuredIdx, setFeaturedIdx] = useState(0)
 
+  const { games: espnGames } = useNFLSchedule(selectedWeek)
   const modeObj = mode ? MODES[mode] : null
-  const allGames = GAMES[selectedWeek] || []
+  const allGames = espnGames.map(espnToGame)
   const modeGames = modeObj
     ? (mode === 'afc' || mode === 'nfc' ? allGames.filter(g => modeObj.filter(g, TEAMS)) : allGames.filter(g => modeObj.filter(g)))
     : allGames.slice(0, 4)

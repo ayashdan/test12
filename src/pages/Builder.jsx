@@ -1,18 +1,21 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import GameCard from '../components/ExerciseCard'
-import { GAMES } from '../data/games'
 import { MODES } from '../data/modes'
 import { TEAMS } from '../data/teams'
+import { espnToGame } from '../data/espnAdapter'
 import { S } from '../styles'
 import { getWeekKey } from '../utils/dates'
+import { useNFLSchedule } from '../hooks/useNFLSchedule'
 
 export default function BuilderPage({ mode, picks, savePicks }) {
   const navigate = useNavigate()
   const { dayIndex: weekParam } = useParams()
   const week = parseInt(weekParam, 10)
 
-  const allGames = GAMES[week] || []
+  const { games: espnGames, loading } = useNFLSchedule(week)
+  const allGames = espnGames.map(espnToGame)
+
   const modeObj = MODES[mode] || MODES.all
   const filtered = mode === 'afc' || mode === 'nfc'
     ? allGames.filter(g => modeObj.filter(g, TEAMS))
@@ -66,15 +69,20 @@ export default function BuilderPage({ mode, picks, savePicks }) {
           })}
         </div>
 
-        <div style={{ fontSize: 12, color: 'var(--text4)', marginBottom: 12 }}>{displayed.length} games available</div>
-
-        {displayed.map(game => (
-          <GameCard key={game.id} game={game}
-            selected={selected.includes(game.id)}
-            done={false}
-            onToggle={() => toggle(game.id)}
-          />
-        ))}
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text4)' }}>Loading games...</div>
+        ) : (
+          <>
+            <div style={{ fontSize: 12, color: 'var(--text4)', marginBottom: 12 }}>{displayed.length} games available</div>
+            {displayed.map(game => (
+              <GameCard key={game.id} game={game}
+                selected={selected.includes(game.id)}
+                done={false}
+                onToggle={() => toggle(game.id)}
+              />
+            ))}
+          </>
+        )}
       </div>
     </div>
   )
