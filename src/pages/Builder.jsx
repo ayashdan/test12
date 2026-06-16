@@ -55,6 +55,19 @@ export default function BuilderPage({ mode, picks, savePicks }) {
         <div style={{ color: 'var(--text2)', fontSize: 13, marginBottom: 16 }}>Select the matchups you want to predict</div>
 
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+          <button onClick={() => {
+            const allSelected = displayed.every(g => selected.includes(g.id))
+            setSelected(prev => allSelected
+              ? prev.filter(id => !displayed.find(g => g.id === id))
+              : [...new Set([...prev, ...displayed.map(g => g.id)])]
+            )
+          }} style={{
+            background: 'rgba(59,130,246,0.15)', color: '#60a5fa',
+            border: '1px solid #3b82f6', borderRadius: 20, padding: '4px 12px',
+            fontSize: 12, fontWeight: 700, cursor: 'pointer',
+          }}>
+            {displayed.every(g => selected.includes(g.id)) && displayed.length > 0 ? 'Deselect All' : 'Select All'}
+          </button>
           {divisions.map(d => {
             const isActive = divFilter === d
             return (
